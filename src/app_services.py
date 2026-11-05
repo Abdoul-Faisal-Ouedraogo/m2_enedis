@@ -13,6 +13,8 @@ LABELS = {
     "conso_5_usages_ef": "Consommation finale (kWh/an)", "nom_commune_ban": "Commune",
     "nombre_niveau_logement": "Nombre de niveaux", "age_batiment": "Âge en 2026 (années)",
     "altitude_moyenne": "Altitude communale (m)", "zone_climatique": "Zone climatique",
+    "temperature_moyenne_annuelle": "Température moyenne annuelle (°C)",
+    "temperature_moyenne_hiver": "Température moyenne hivernale (°C)",
     "cout_total_5_usages": "Coût des cinq usages (€)", "code_insee_ban": "Code INSEE",
     "code_postal_ban": "Code postal", "lat": "Latitude (°)", "lon": "Longitude (°)",
 }
@@ -50,7 +52,7 @@ def chart_pngs(df, measure, percent=False):
     def save(name, title, draw):
         fig = Figure(figsize=(9, 5.4), layout="constrained", facecolor="#ffffff")
         ax = fig.subplots()
-        ax.set_title(title, loc="left", fontsize=14, pad=18, color="#123e35", wrap=True)
+        ax.set_title(title, loc="left", fontsize=14, pad=18, color="#172b4d", wrap=True)
         ax.tick_params(labelsize=12)
         draw(ax)
         ax.spines[["top", "right"]].set_visible(False)
@@ -70,7 +72,7 @@ def chart_pngs(df, measure, percent=False):
         save("barres", f"Classes DPE · {count_text} logements · {unknown} sans classe A–G", bars)
     if measure in df and df[measure].notna().any():
         def histogram(ax):
-            ax.hist(df[measure].dropna(), bins=40, color="#248b8b", edgecolor="white")
+            ax.hist(df[measure].dropna(), bins=40, color="#0e7490", edgecolor="white")
             ax.set_xlabel(LABELS[measure]); ax.set_ylabel("Nombre de logements")
         save("histogramme", "Distribution · " + LABELS[measure], histogram)
         if "etiquette_dpe" in df:
@@ -87,7 +89,7 @@ def chart_pngs(df, measure, percent=False):
         points = points.sample(min(5000, len(points)), random_state=42)
         if len(points):
             def scatter(ax):
-                ax.scatter(points[cols[0]], points[cols[1]], s=7, alpha=.3, color="#247f88", rasterized=True)
+                ax.scatter(points[cols[0]], points[cols[1]], s=7, alpha=.3, color="#0e7490", rasterized=True)
                 ax.set_xlabel(LABELS[cols[0]]); ax.set_ylabel(LABELS[cols[1]])
             count_text = f"{len(points):,}".replace(",", " ")
             save("nuage", f"Surface et consommation · {count_text} logements représentés", scatter)

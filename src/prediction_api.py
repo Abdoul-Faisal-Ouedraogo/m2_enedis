@@ -35,6 +35,8 @@ class Housing(BaseModel):
     nombre_niveau_logement: int = Field(ge=1,le=100,description="Nombre entier de niveaux du logement")
     age_batiment: float = Field(ge=0,le=1000,description="2026 moins l'année de construction ; neuf imputé à zéro")
     altitude_moyenne: float = Field(ge=-500,le=5000,description="Altitude communale ou repli départemental en mètres")
+    temperature_moyenne_annuelle: float | None = Field(default=None, ge=10, le=16)
+    temperature_moyenne_hiver: float | None = Field(default=None, ge=3, le=9)
     type_energie_principale_chauffage: str
     type_batiment: str
     zone_climatique: Literal["H1","H2","H3"]
@@ -65,7 +67,9 @@ def _cached_model(version,runtime,stamps):
 def active_bundle():
     store=VersionStore()
     active=store.active()
-    folder=ROOT/"MLmodels/final_geo_v1" if active["model"]=="final_geo_v1" else store.folder("models",active["model"])
+    folder = (ROOT / "MLmodels/final_geo_v1" if active["model"] == "final_geo_v1"
+              else ROOT / "MLmodels/final_geo_v2_temperature" if active["model"] == "final_geo_v2_temperature"
+              else store.folder("models",active["model"]))
     paths=list(folder.glob("*"))
     if active["model"]=="final_geo_v1":
         paths.append(ROOT/"MLmodels/final_models.json")

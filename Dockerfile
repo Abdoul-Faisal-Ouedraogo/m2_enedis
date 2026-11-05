@@ -14,6 +14,7 @@ COPY config/preparation_initial_geo_v1.json ./config/preparation_initial_geo_v1.
 COPY .streamlit/ ./.streamlit/
 COPY MLmodels/final_models.json ./MLmodels/final_models.json
 COPY MLmodels/final_geo_v1/ ./MLmodels/final_geo_v1/
+COPY MLmodels/final_geo_v2_temperature/ ./MLmodels/final_geo_v2_temperature/
 COPY Notebooks_Api_Traitement/1_data_preparation.ipynb ./Notebooks_Api_Traitement/1_data_preparation.ipynb
 COPY scripts/smoke_container.py ./scripts/smoke_container.py
 USER app

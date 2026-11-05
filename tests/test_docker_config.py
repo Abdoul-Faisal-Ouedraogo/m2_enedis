@@ -18,7 +18,7 @@ def test_compose_local_ports_and_read_only_mounts():
         assert service["read_only"]
         assert all(port["host_ip"]=="127.0.0.1" for port in service["ports"])
         binds=[v for v in service["volumes"] if v["type"]=="bind"]
-        assert len(binds)==3 and all(v["read_only"] for v in binds)
+        assert len(binds)==4 and all(v["read_only"] for v in binds)
         assert all(not v["bind"].get("create_host_path", False) for v in binds)
         assert not any("ademe_data" in v["source"] for v in binds)
 

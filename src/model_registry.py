@@ -1,5 +1,6 @@
 """Chargeur commun Streamlit/API ; aucune activation implicite."""
 from src.final_model_loader import load_final_bundle
+from src import project_paths
 import json
 import joblib
 import sklearn
@@ -14,6 +15,30 @@ def load_model_version(version="final_geo_v1", store=None):
     if version == "final_geo_v1":
         result = load_final_bundle()
         result["version"] = version
+        return result
+    if version == "final_geo_v2_temperature":
+        root = project_paths.ROOT / "MLmodels/final_geo_v2_temperature"
+        variables = json.loads((root / "variables.json").read_text(encoding="utf-8"))
+        features = variables["numeric"] + variables["categorical"]
+        result = {
+            "version": version,
+            "variables": {},
+            "results": json.loads((root / "results.json").read_text(encoding="utf-8")),
+            "protocol": {"temperature_source": variables["temperature_source"]},
+        }
+        for kind, target in [("classification", "etiquette_dpe"),
+                             ("regression", "conso_5_usages_ef")]:
+            model = joblib.load(root / f"{kind}.joblib")
+            if list(model.feature_names_in_) != features:
+                raise ValueError("Variables du pipeline température incompatibles")
+            result[kind] = model
+            result["variables"][kind] = {
+                "features": features,
+                "quantitative_features": variables["numeric"],
+                "qualitative_features": variables["categorical"],
+                "reference_year": variables["reference_year"],
+                "target": target,
+            }
         return result
     store = store or VersionStore()
     folder = store.folder("models", version)

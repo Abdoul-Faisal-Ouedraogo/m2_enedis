@@ -1,0 +1,161 @@
+{
+  "version": "final_geo_v2_temperature",
+  "features": [
+    "surface_habitable_logement",
+    "nombre_niveau_logement",
+    "age_batiment",
+    "altitude_moyenne",
+    "temperature_moyenne_annuelle",
+    "temperature_moyenne_hiver",
+    "type_energie_principale_chauffage",
+    "type_batiment",
+    "zone_climatique"
+  ],
+  "fit_rows": 453680,
+  "reserved_rows": 107666,
+  "classification": {
+    "rows": 107666,
+    "accuracy": 0.55054520461427,
+    "f1_macro": 0.40127692108443497,
+    "report": {
+      "A": {
+        "precision": 0.9405269107034171,
+        "recall": 0.7402059739282171,
+        "f1-score": 0.8284286507495836,
+        "support": 29227.0
+      },
+      "B": {
+        "precision": 0.3916833307696252,
+        "recall": 0.5589784867554515,
+        "f1-score": 0.46061081129970755,
+        "support": 13666.0
+      },
+      "C": {
+        "precision": 0.802590145030381,
+        "recall": 0.4577094293808175,
+        "f1-score": 0.5829615192564792,
+        "support": 39536.0
+      },
+      "D": {
+        "precision": 0.3583783783783784,
+        "recall": 0.5509913332541849,
+        "f1-score": 0.4342862490057549,
+        "support": 16846.0
+      },
+      "E": {
+        "precision": 0.26136655535576675,
+        "recall": 0.3212819703189138,
+        "f1-score": 0.28824362606232296,
+        "support": 6334.0
+      },
+      "F": {
+        "precision": 0.07517140058765916,
+        "recall": 0.19308176100628932,
+        "f1-score": 0.10821290095170956,
+        "support": 1590.0
+      },
+      "G": {
+        "precision": 0.05821635012386457,
+        "recall": 0.6038543897216274,
+        "f1-score": 0.10619469026548672,
+        "support": 467.0
+      },
+      "accuracy": 0.55054520461427,
+      "macro avg": {
+        "precision": 0.41256186727844174,
+        "recall": 0.4894433349093574,
+        "f1-score": 0.40127692108443497,
+        "support": 107666.0
+      },
+      "weighted avg": {
+        "precision": 0.6725630735568836,
+        "recall": 0.55054520461427,
+        "f1-score": 0.5843862580489751,
+        "support": 107666.0
+      }
+    },
+    "confusion_labels": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G"
+    ],
+    "confusion_matrix": [
+      [
+        21634,
+        6982,
+        316,
+        216,
+        45,
+        21,
+        13
+      ],
+      [
+        967,
+        7639,
+        2738,
+        1581,
+        296,
+        377,
+        68
+      ],
+      [
+        386,
+        4775,
+        18096,
+        12406,
+        1862,
+        1016,
+        995
+      ],
+      [
+        15,
+        94,
+        1319,
+        9282,
+        3043,
+        1466,
+        1627
+      ],
+      [
+        0,
+        10,
+        75,
+        2100,
+        2035,
+        804,
+        1310
+      ],
+      [
+        0,
+        3,
+        3,
+        293,
+        435,
+        307,
+        549
+      ],
+      [
+        0,
+        0,
+        0,
+        22,
+        70,
+        93,
+        282
+      ]
+    ]
+  },
+  "regression": {
+    "rows": 107666,
+    "mae": 1813.991283324477,
+    "rmse": 2952.8354029268826,
+    "r2": 0.654104823656818
+  },
+  "python": "3.13.15",
+  "sklearn": "1.7.2",
+  "data_sha256": "23bd929bbca4867a77b91a630bee37579d31217c030116010b0211d78455535c"
+}

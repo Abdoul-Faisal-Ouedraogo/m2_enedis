@@ -11,6 +11,7 @@
 !config/preparation_initial_geo_v1.json
 !.streamlit/
 !.streamlit/config.toml
+!MLmodels
 !MLmodels/
 !MLmodels/final_models.json
 !MLmodels/final_geo_v1/
@@ -32,3 +33,9 @@
 **/*.log
 **/*backup*
 **/*temp*
+!MLmodels/final_geo_v2_temperature
+!MLmodels/final_geo_v2_temperature/
+!MLmodels/final_geo_v2_temperature/classification.joblib
+!MLmodels/final_geo_v2_temperature/regression.joblib
+!MLmodels/final_geo_v2_temperature/results.json
+!MLmodels/final_geo_v2_temperature/variables.json

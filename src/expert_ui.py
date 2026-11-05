@@ -132,7 +132,7 @@ def render_management():
         entries = store.list_versions("models")
         for item in entries:
             st.caption(f"{item['id']} · {item['status']}" + (" · " + item.get("error","") if item["status"]=="failed" else ""))
-        choices = ["final_geo_v1"] + [x["id"] for x in entries if x["status"]=="ready"]
+        choices = ["final_geo_v1", "final_geo_v2_temperature"] + [x["id"] for x in entries if x["status"]=="ready"]
         selected_model = st.selectbox("Version de modèles compatible à activer",choices)
         confirm_model = st.checkbox("Je confirme le changement des modèles actifs et l’invalidation des anciens résultats.")
         if st.button("Activer les modèles choisis",disabled=not confirm_model,key="activate_models"):
