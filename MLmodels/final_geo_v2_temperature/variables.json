@@ -1,0 +1,17 @@
+{
+  "numeric": [
+    "surface_habitable_logement",
+    "nombre_niveau_logement",
+    "age_batiment",
+    "altitude_moyenne",
+    "temperature_moyenne_annuelle",
+    "temperature_moyenne_hiver"
+  ],
+  "categorical": [
+    "type_energie_principale_chauffage",
+    "type_batiment",
+    "zone_climatique"
+  ],
+  "reference_year": 2026,
+  "temperature_source": "Open-Meteo Historical Weather API"
+}

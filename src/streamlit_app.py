@@ -7,8 +7,9 @@ import streamlit as st
 
 from src import project_paths
 from src.final_model_loader import load_final_bundle
-from src.app_design import context, styles, scale, NAV_LABELS
+from src.app_design import context, styles, scale, page_header, NAV_LABELS, SIDEBAR_LABELS
 from src.app_prediction_ui import render_prediction
+from src.ai_interpretation import get_interpretation
 from src.app_map import camera_for_selection, MAP_HEIGHT
 from src.version_store import VersionStore
 from src.expert_ui import render_management
@@ -49,6 +50,10 @@ def bundle():
     root = project_paths.ROOT
     store = VersionStore()
     version = store.active()["model"]
+    if version == "final_geo_v2_temperature":
+        folder = root / "MLmodels/final_geo_v2_temperature"
+        stamps = tuple((str(p),p.stat().st_mtime_ns,p.stat().st_size) for p in sorted(folder.glob("*")) if p.is_file())
+        return cached_bundle(stamps,version)
     if version != "final_geo_v1":
         folder = store.folder("models",version)
         stamps = tuple((str(p),p.stat().st_mtime_ns,p.stat().st_size) for p in sorted(folder.glob("*")) if p.is_file())
@@ -125,8 +130,8 @@ def filters(df):
 
 
 def exploration(df):
-    st.title("📊 Explorer les logements")
-    st.write("Les indicateurs, tableaux et exports suivent tous les filtres de la barre latérale.")
+    page_header("Exploration")
+    st.caption("Les indicateurs, tableaux et exports suivent tous les filtres de la barre latérale.")
     subset = filters(df)
     if subset.empty:
         st.info("Aucun logement ne correspond à ces filtres. Élargissez la surface ou réinitialisez les filtres.")
@@ -168,7 +173,7 @@ def exploration(df):
 
 
 def carte(df):
-    st.title("🗺️ Situer les logements")
+    page_header("Carte")
     subset = filters(df)
     if subset.empty:
         st.session_state.pop("map_camera", None)
@@ -200,6 +205,7 @@ def carte(df):
 
 
 def prediction(df):
+    page_header("Prédiction")
     try:
         models = bundle()
     except Exception:
@@ -209,10 +215,47 @@ def prediction(df):
     render_prediction(models, df)
 
 
+def ai_interpretation():
+    page_header("Interprétation IA")
+    st.write("Obtenez une lecture pédagogique du résultat de votre modèle, sans envoyer votre jeu de données complet.")
+    st.info("L'IA explique l'estimation ; elle ne remplace pas un DPE réglementaire et ne modifie jamais le résultat du modèle.")
+    candidates = []
+    for key, title in [("single_result", "Votre logement"), ("housing_a_result", "Logement A"),
+                       ("housing_b_result", "Logement B")]:
+        result = st.session_state.get(key)
+        if result:
+            candidates.append((key, title, result))
+    if not candidates:
+        st.warning("Calculez d'abord une estimation dans l'onglet « Prédiction énergétique ».")
+        return
+    selected = st.selectbox("Résultat à interpréter", candidates, format_func=lambda item: item[1],
+                            key="ai_result_selection")
+    if st.button("Générer l'interprétation IA", type="primary", width="stretch"):
+        try:
+            with st.spinner("Analyse pédagogique en cours…"):
+                st.session_state.ai_interpretation = get_interpretation(selected[2])
+            st.session_state.ai_interpretation_source = selected[0]
+        except (RuntimeError, OSError) as exc:
+            st.session_state.pop("ai_interpretation", None)
+            st.error(f"Impossible de générer l'interprétation : {exc}")
+    interpretation = st.session_state.get("ai_interpretation")
+    if interpretation and st.session_state.get("ai_interpretation_source") == selected[0]:
+        with st.container(border=True):
+            st.subheader("Analyse de votre résultat")
+            st.markdown(interpretation)
+
+
 def run():
     styles()
-    st.sidebar.title("🏡 Habitat & énergie")
-    st.sidebar.caption("DPE · étude locale ADEME")
+    st.sidebar.markdown(
+        '<div class="sidebar-brand">'
+        '<div class="sidebar-logo"><div class="sidebar-logo-mark">EF</div>'
+        '<div class="sidebar-logo-name">ENERGIE FRANCE</div></div>'
+        '<div class="sidebar-title">Énergie France</div>'
+        '<div class="sidebar-subtitle">Analyse &amp; Prédiction<br>Énergétique</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
     try:
         revision = VersionStore().active()["revision"]
         if st.session_state.get("active_revision", revision) != revision:
@@ -223,15 +266,24 @@ def run():
     except (OSError, ValueError, KeyError):
         st.error("Le registre actif est illisible. Restaurer le registre local avant de continuer.")
         return
-    page = st.sidebar.radio("Navigation", list(NAV_LABELS), key="page", format_func=NAV_LABELS.get)
+    page = st.sidebar.radio("Navigation", list(NAV_LABELS), key="page",
+                            format_func=lambda value: SIDEBAR_LABELS.get(value, value))
     df = load_frame()
     if page == "Contexte":
         context(df)
     elif page == "Prédiction":
         prediction(df)
+    elif page == "Interprétation IA":
+        ai_interpretation()
     elif page == "Gestion des données et modèles":
+        page_header(page)
         render_management()
     elif df is not None and not df.empty:
         {"Exploration": exploration, "Carte": carte}[page](df)
     st.sidebar.divider()
-    st.sidebar.caption("Local uniquement · collecte et entraînement sur confirmation")
+    st.sidebar.markdown(
+        '<div class="sidebar-sources"><strong>Sources de données :</strong>'
+        '<ul><li>ADEME – Diagnostics DPE</li>'
+        '<li>Enedis – Consommations de la France</li></ul></div>',
+        unsafe_allow_html=True,
+    )

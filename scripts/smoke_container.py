@@ -11,7 +11,9 @@ from src.app_services import read_data, csv_bytes, chart_pngs
 from src.app_geography import read_geography, commune_proposal
 
 paths = [ROOT / "output/cleaned_data.csv",ROOT/"output/cleaned_data_metadata.csv",ROOT/"data/communes-france-2025.csv",
-         *sorted((ROOT / "MLmodels/final_geo_v1").glob("*"))]
+         ROOT/"output/temperature_v2/temperatures_communes.csv",
+         *sorted((ROOT / "MLmodels/final_geo_v1").glob("*")),
+         *sorted((ROOT / "MLmodels/final_geo_v2_temperature").glob("*"))]
 def hashes():
     return {str(p): hashlib.file_digest(p.open("rb"), "sha256").hexdigest() for p in paths if p.is_file()}
 before = hashes()
@@ -28,6 +30,9 @@ assert not app.exception and app.metric[0].value.endswith("kWh/an")
 assert app.get("download_button")
 reference = read_geography(ROOT / "data/communes-france-2025.csv", ROOT / "Notebooks_Api_Traitement/1_data_preparation.ipynb")
 assert commune_proposal(reference, "69381", "69")["altitude"] == 237
+proposal = commune_proposal(reference, "69381", "69")
+assert proposal["temperature_moyenne_annuelle"] is not None
+assert proposal["temperature_moyenne_hiver"] is not None
 app.radio(key="single_geo_mode").set_value("Choisir une commune").run()
 app.selectbox(key="single_department").set_value("69").run()
 app.selectbox(key="single_commune_69").set_value("69123").run()

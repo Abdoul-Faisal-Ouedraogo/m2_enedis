@@ -65,7 +65,10 @@ class VersionStore:
     def active(self):
         path = self.root / "active.json"
         return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {
-            "data": "initial", "model": "final_geo_v1", "revision": "initial", "previous": None}
+            "data": "initial",
+            "model": os.environ.get("ENEDIS_DEFAULT_MODEL", "final_geo_v1"),
+            "revision": "initial",
+            "previous": None}
 
     def data_paths(self, version=None, check=True):
         version = version or self.active()["data"]

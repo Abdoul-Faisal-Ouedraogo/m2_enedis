@@ -12,6 +12,7 @@ x-runtime: &runtime
   cpus: 2
   environment:
     ENEDIS_RUNTIME: /app/runtime
+    ENEDIS_DEFAULT_MODEL: final_geo_v2_temperature
   volumes:
     - type: bind
       source: ./output/cleaned_data.csv
@@ -26,6 +27,11 @@ x-runtime: &runtime
     - type: bind
       source: ./data/communes-france-2025.csv
       target: /app/data/communes-france-2025.csv
+      read_only: true
+      bind: {create_host_path: false}
+    - type: bind
+      source: ./output/temperature_v2/temperatures_communes.csv
+      target: /app/output/temperature_v2/temperatures_communes.csv
       read_only: true
       bind: {create_host_path: false}
     - expert-runtime:/app/runtime

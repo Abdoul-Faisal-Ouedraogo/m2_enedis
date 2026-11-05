@@ -46,13 +46,26 @@ def geographical_help(prefix):
     if code is None:
         return department
     proposal = commune_proposal(reference, code, department)
-    if proposal["altitude"] is None or proposal["zone"] is None:
-        st.warning("Altitude ou zone climatique non définie par les références locales pour cette sélection. Aucune valeur n’est inventée ; gardez la saisie manuelle.")
+    missing = [label for key, label in [
+        ("altitude", "altitude"), ("zone", "zone climatique"),
+        ("temperature_moyenne_annuelle", "température moyenne annuelle"),
+        ("temperature_moyenne_hiver", "température moyenne hivernale"),
+    ] if proposal.get(key) is None]
+    if missing:
+        st.warning("Donnée(s) indisponible(s) pour cette commune : " + ", ".join(missing) +
+                   ". Aucune valeur n’est inventée ; gardez la saisie manuelle.")
     else:
-        st.caption(f"Proposition : {number(proposal['altitude'], 1)} m · {proposal['zone']}. {proposal['source']}.")
+        st.caption(
+            f"Proposition : {number(proposal['altitude'], 1)} m · {proposal['zone']} · "
+            f"{number(proposal['temperature_moyenne_annuelle'], 1)} °C en moyenne annuelle · "
+            f"{number(proposal['temperature_moyenne_hiver'], 1)} °C en hiver. "
+            f"{proposal['source']} Températures : Open-Meteo 2015–2024."
+        )
         if st.button("Utiliser ces valeurs", key=prefix+"_apply_geo", width="stretch"):
             st.session_state[prefix+"_altitude"] = proposal["altitude"]
             st.session_state[prefix+"_zone"] = proposal["zone"]
+            st.session_state[prefix+"_temperature_annual"] = proposal["temperature_moyenne_annuelle"]
+            st.session_state[prefix+"_temperature_winter"] = proposal["temperature_moyenne_hiver"]
             st.session_state[prefix+"_applied_geo"] = proposal
     return f"{department}/{code}"
 
@@ -60,7 +73,16 @@ def geographical_help(prefix):
 def location_description(prefix, values, geo_context):
     applied = st.session_state.get(prefix+"_applied_geo")
     if applied and geo_context == f"{applied['department']}/{applied['original_code']}":
-        if values["altitude_moyenne"] == applied["altitude"] and values["zone_climatique"] == applied["zone"]:
+        geo_values = ["altitude_moyenne", "zone_climatique"]
+        if "temperature_moyenne_annuelle" in values:
+            geo_values += ["temperature_moyenne_annuelle", "temperature_moyenne_hiver"]
+        expected = {
+            "altitude_moyenne": applied["altitude"],
+            "zone_climatique": applied["zone"],
+            "temperature_moyenne_annuelle": applied.get("temperature_moyenne_annuelle"),
+            "temperature_moyenne_hiver": applied.get("temperature_moyenne_hiver"),
+        }
+        if all(values[key] == expected[key] for key in geo_values):
             return f"{applied['commune']} ({applied['department']}) - {applied['source']} ; zone {applied['zone']}"
         return f"Saisie manuelle ajustée après proposition pour {applied['commune']}"
     return "Saisie manuelle de l’altitude et de la zone climatique"
@@ -90,7 +112,26 @@ def input_panel(prefix, title, models, df):
                                    step=1.0, key=prefix+"_altitude", help="Altitude communale ou remplacement départemental, pas l’étage du logement.")
         zone = st.selectbox("Zone climatique", options["zone_climatique"], key=prefix+"_zone",
                             help="H1 : froide ; H2 : tempérée ; H3 : méditerranéenne. Aucune sous-zone n’est utilisée.")
-        values = dict(zip(contract["features"], [surface, levels, age, altitude, energy, building, zone]))
+        values = {
+            "surface_habitable_logement": surface, "nombre_niveau_logement": levels,
+            "age_batiment": age, "altitude_moyenne": altitude,
+            "type_energie_principale_chauffage": energy, "type_batiment": building,
+            "zone_climatique": zone,
+        }
+        if "temperature_moyenne_annuelle" in contract["features"]:
+            defaults = {"H1": (11.5, 4.5), "H2": (12.5, 5.5), "H3": (14.0, 7.0)}
+            annual_default, winter_default = defaults[zone]
+            st.session_state.setdefault(prefix+"_temperature_annual", annual_default)
+            st.session_state.setdefault(prefix+"_temperature_winter", winter_default)
+            st.caption("Températures OpenData utilisées par la v2 (valeurs ajustables selon la commune).")
+            temp_a, temp_b = st.columns(2)
+            values["temperature_moyenne_annuelle"] = temp_a.number_input(
+                "Température moyenne annuelle (°C)", min_value=10.0, max_value=16.0,
+                step=.1, key=prefix+"_temperature_annual")
+            values["temperature_moyenne_hiver"] = temp_b.number_input(
+                "Température moyenne hivernale (°C)", min_value=3.0, max_value=9.0,
+                step=.1, key=prefix+"_temperature_winter")
+        values = {feature: values[feature] for feature in contract["features"]}
         location = location_description(prefix, values, geo_context)
         st.caption(location)
         signature = json.dumps({"values": values, "geography": geo_context, "location": location,
@@ -109,7 +150,7 @@ def input_panel(prefix, title, models, df):
                 st.session_state[prefix+"_dirty"] = False
             except (ValueError, TypeError, KeyError):
                 st.session_state.pop(result_key, None)
-                st.error("Vérifiez les sept caractéristiques : une valeur n’est pas compatible avec le modèle.")
+                st.error("Vérifiez les caractéristiques saisies : une valeur n’est pas compatible avec le modèle.")
         if st.session_state.get(prefix+"_dirty"):
             st.info("Saisies modifiées : relancez le calcul pour afficher un résultat à jour.")
         result = st.session_state.get(result_key)
@@ -127,7 +168,7 @@ def result_panel(result, key):
         st.metric("Consommation finale estimée · cinq usages", number(result["consumption"]) + " kWh/an")
         st.metric("Lettre DPE estimée", result["label"])
         scale(result["label"])
-        st.caption("Calculé le " + datetime.fromisoformat(result["calculated_at"]).strftime("%d/%m/%Y à %H:%M") + " · les sept caractéristiques saisies sont reprises dans le PDF.")
+        st.caption("Calculé le " + datetime.fromisoformat(result["calculated_at"]).strftime("%d/%m/%Y à %H:%M") + " · les caractéristiques saisies sont reprises dans le PDF.")
         st.download_button("Télécharger le résumé PDF", estimation_pdf([result]), key+".pdf", "application/pdf", key=key+"_pdf", on_click="ignore", width="stretch")
 
 
@@ -141,6 +182,10 @@ def model_details(models):
         b.metric("F1 macro A–G", number(results["classification"]["f1_macro"], 4))
         c.metric("Erreur absolue moyenne", number(results["regression"]["mae"], 2) + " kWh/an")
         st.caption(f"Lot réservé interne de {number(results['classification']['rows'])} logements. Ce n’est pas une validation externe indépendante.")
+        if "by_source" not in results:
+            st.caption("Évaluation sur le lot réservé de la v2 enrichie avec les températures OpenData.")
+            st.caption("Source température : " + models["protocol"].get("temperature_source", "non précisée"))
+            return
         rows = []
         for source, scores in results["by_source"].items():
             rows.append({"Population": source, "Logements": scores["classification"]["rows"],
@@ -166,7 +211,8 @@ def model_details(models):
 
 def render_prediction(models, df):
     st.title("✨ Estimer et comparer")
-    st.write("Décrivez un logement en sept caractéristiques. Vous pouvez aussi comparer deux profils et télécharger leurs résumés.")
+    count = len(models["variables"]["classification"]["features"])
+    st.write(f"Décrivez un logement en {count} caractéristiques. Vous pouvez aussi comparer deux profils et télécharger leurs résumés.")
     st.warning("Estimation pédagogique, sans valeur de DPE réglementaire. Prudence sur l’existant et les classes F/G ; aucune confiance individuelle n’est fournie.")
     mode = st.radio("Votre projet", ["Un logement", "Comparer deux logements"], horizontal=True, key="prediction_mode")
     if mode == "Un logement":
