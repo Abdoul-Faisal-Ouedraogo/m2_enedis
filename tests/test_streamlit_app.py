@@ -44,7 +44,7 @@ def test_four_pages_real_data():
         assert not ui.exception
         assert not ui.error
         if page == "Exploration":
-            assert len(ui.get("download_button")) == 4
+            assert len(ui.get("download_button")) == 5
         elif page == "Carte":
             assert ui.metric[2].value == "5 000"
             assert len(ui.get("deck_gl_json_chart")) == 1
@@ -77,7 +77,7 @@ def test_combined_filters_and_ui_exports(data):
     assert not ui.exception
     # Le bouton de préparation produit un cinquième téléchargement (CSV).
     [b for b in ui.button if b.label == "Préparer l’export CSV filtré"][0].click().run()
-    assert len(ui.get("download_button")) == 5
+    assert len(ui.get("download_button")) == 6
     # Une surface située dans une lacune observée, à l'intérieur des bornes du curseur.
     surfaces = sorted(data.surface_habitable_logement.dropna().unique())
     gap = max(zip(surfaces, surfaces[1:]), key=lambda pair: pair[1] - pair[0])
