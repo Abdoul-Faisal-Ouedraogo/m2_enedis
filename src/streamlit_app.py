@@ -1,6 +1,7 @@
 """Interface française des niveaux Standard et Intermédiaire."""
 import logging
 import json
+import altair as alt
 
 import pandas as pd
 import streamlit as st
@@ -137,13 +138,39 @@ def exploration(df):
         st.info("Aucun logement ne correspond à ces filtres. Élargissez la surface ou réinitialisez les filtres.")
         return
     a, b, c, d = st.columns(4)
-    a.metric("Logements retenus", number(len(subset)))
-    b.metric("Surface moyenne", number(subset.surface_habitable_logement.mean(), 1) + " m²"
-             if "surface_habitable_logement" in subset and subset.surface_habitable_logement.notna().any() else "—")
-    c.metric("Consommation moyenne", number(subset.conso_5_usages_ef.mean()) + " kWh/an"
-             if "conso_5_usages_ef" in subset and subset.conso_5_usages_ef.notna().any() else "—")
-    d.metric("Part F et G", number(subset.etiquette_dpe.isin(["F", "G"]).mean() * 100, 1) + " %"
-             if "etiquette_dpe" in subset else "—")
+
+    a.metric(
+        "Logements retenus",
+        number(len(subset)),
+        help="Nombre total de logements correspondant aux filtres sélectionnés."
+    )
+
+    b.metric(
+        "Surface moyenne",
+        number(subset.surface_habitable_logement.mean(), 1) + " m²"
+        if "surface_habitable_logement" in subset
+        and subset.surface_habitable_logement.notna().any()
+        else "—",
+        help="Surface habitable moyenne des logements filtrés, exprimée en m²."
+    )
+
+    c.metric(
+        "Conso. moyenne",
+        number(subset.conso_5_usages_ef.mean()) + " kWh/an"
+        if "conso_5_usages_ef" in subset
+        and subset.conso_5_usages_ef.notna().any()
+        else "—",
+        help="Consommation annuelle moyenne d'énergie finale pour les cinq usages."
+    )
+
+    d.metric(
+        "Part F et G",
+        number(subset.etiquette_dpe.isin(["F", "G"]).mean() * 100, 1) + " %"
+        if "etiquette_dpe" in subset
+        else "—",
+        help="Pourcentage des logements filtrés classés F ou G, appelés passoires énergétiques."
+    )
+
     st.caption("Moyennes sur les valeurs renseignées. Part F/G calculée sur tous les logements filtrés.")
     measures = [c for c in ["conso_5_usages_ef", "surface_habitable_logement"] if c in subset]
     if measures:
@@ -163,6 +190,88 @@ def exploration(df):
                    "Nuage : au plus 5 000 logements filtrés, tirage fixe (graine 42), effectif inscrit sur le graphique.")
     else:
         st.warning("Les colonnes de consommation et de surface sont absentes ; les graphiques ne peuvent pas être construits.")
+
+
+    # Comparaison des classes DPE selon le type de bâtiment
+    st.subheader("Comparaison DPE par type de bâtiment")
+
+    st.caption(
+        "Répartition des classes énergétiques A à G "
+        "selon les types de bâtiments sélectionnés."
+    )
+
+    colonnes = {"type_batiment", "etiquette_dpe"}
+
+    if colonnes.issubset(subset.columns):
+        donnees = subset[
+            ["type_batiment", "etiquette_dpe"]
+        ].dropna()
+
+        donnees = donnees[
+            donnees["etiquette_dpe"].isin(list("ABCDEFG"))
+        ]
+
+        if not donnees.empty:
+            comparaison = pd.crosstab(
+                donnees["etiquette_dpe"],
+                donnees["type_batiment"],
+                normalize="columns"
+            ) * 100
+
+            comparaison = comparaison.reindex(
+                list("ABCDEFG"), fill_value=0
+            )
+
+            graphique = (
+                comparaison.reset_index()
+                .melt(
+                    id_vars="etiquette_dpe",
+                    var_name="Type de bâtiment",
+                    value_name="Pourcentage"
+                )
+            )
+
+            chart = alt.Chart(graphique).mark_bar().encode(
+                x=alt.X(
+                    "etiquette_dpe:N",
+                    title="Classe énergétique DPE",
+                    sort=list("ABCDEFG")
+                ),
+                xOffset="Type de bâtiment:N",
+                y=alt.Y(
+                    "Pourcentage:Q",
+                    title="Pourcentage de logements (%)"
+                ),
+                color=alt.Color(
+                    "Type de bâtiment:N",
+                    title="Type de bâtiment"
+                ),
+                tooltip=[
+                    "etiquette_dpe:N",
+                    "Type de bâtiment:N",
+                    alt.Tooltip("Pourcentage:Q", format=".1f")
+                ]
+            )
+
+            st.altair_chart(chart, width="stretch")
+
+            st.caption(
+                "Chaque type de bâtiment représente 100 % "
+                "de ses logements avec une classe DPE connue."
+            )
+
+            st.download_button(
+                "📥 Télécharger la comparaison en CSV",
+                data=comparaison.to_csv(
+                    sep=";", decimal=","
+                ).encode("utf-8-sig"),
+                file_name="comparaison_dpe_batiments.csv",
+                mime="text/csv"
+            )
+        else:
+            st.info("Aucune donnée disponible pour la comparaison.")
+    else:
+        st.info("Colonnes nécessaires indisponibles.")
     st.subheader("Détail de la sélection")
     st.dataframe(subset.head(500).rename(columns=LABELS), hide_index=True, width="stretch")
     st.caption(f"Aperçu : {number(min(500, len(subset)))} lignes. Le CSV contient les {number(len(subset))} lignes filtrées, toutes les colonnes et les noms d’origine.")
