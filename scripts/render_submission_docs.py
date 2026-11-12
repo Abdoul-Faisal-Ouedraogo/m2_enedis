@@ -82,7 +82,7 @@ def render(source,destination):
 if __name__=="__main__":
     output=ROOT/"output/submission"
     output.mkdir(parents=True,exist_ok=True)
-    for name,minimum,maximum in [("guide_utilisateur",1,2),("documentation_technique",1,2),("rapport_ml_final",4,6)]:
+    for name,minimum,maximum in [("guide_utilisateur",1,2),("documentation_a_voir",1,2),("rapport_ml_final",4,6)]:
         pages=render(ROOT/"doc"/(name+".md"),output/(name+".pdf"))
         print(f"{name}: {pages} pages")
         if not minimum<=pages<=maximum:

@@ -92,5 +92,7 @@ def test_menu_description_and_no_automatic_expert_actions():
         ui=AppTest.from_file(str(ROOT/"home.py"),default_timeout=90).run()
         ui.sidebar.radio[0].set_value("Gestion des données et modèles").run()
         assert not ui.exception
+        # La légende « sur confirmation » a été remplacée par le bloc Sources (refonte 8944d9c) ;
+        # les confirmations sont désormais portées par les cases à cocher de la page Gestion.
         captions=" ".join(c.value for c in ui.sidebar.caption)
-        assert "sur confirmation" in captions and "sans extraction ni réentraînement" not in captions
+        assert "sans extraction ni réentraînement" not in captions
