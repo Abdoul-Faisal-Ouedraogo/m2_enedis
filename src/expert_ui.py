@@ -48,6 +48,7 @@ def data_summary(info):
 def render_management():
     st.title("⚙️ Gestion des données et modèles")
     st.write("Préparer une version ne l’active pas. Les fichiers d’origine et les modèles de référence sont conservés.")
+    st.sidebar.caption("Les actions réseau, validation, activation et entraînement sont lancées sur confirmation explicite.")
     store = VersionStore()
     active = store.active()
     st.caption(f"Données actives : {active['data']} · Modèles actifs : {active['model']}")
