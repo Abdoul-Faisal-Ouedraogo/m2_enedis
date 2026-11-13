@@ -9,7 +9,7 @@ Le projet permet de :
 - visualiser les logements sur une carte interactive ;
 - prédire une classe DPE et une consommation annuelle ;
 - enrichir les prédictions avec des températures OpenData ;
-- interpréter les résultats avec Gemini, si une clé API est configurée ;
+- interpréter les résultats avec Google Gemini, si une clé API est configurée ;
 - recevoir de nouvelles données ADEME ;
 - créer, valider, activer et réentraîner des versions de modèles ;
 - exposer les prédictions via une API FastAPI.
@@ -69,6 +69,12 @@ Cette commande récupère et vérifie :
 - `data/communes-france-2025.csv` ;
 - `output/cleaned_data.csv` ;
 - `output/cleaned_data_metadata.csv`.
+- `output/temperature_v2/temperatures_communes.csv`, généré depuis Open-Meteo
+  après le téléchargement des fichiers de base.
+
+La première génération météo nécessite une connexion Internet et peut prendre
+quelques minutes. Lors des lancements suivants, le fichier déjà vérifié est
+réutilisé automatiquement.
 
 ### 3.3 Vérifier les fichiers nécessaires
 
@@ -88,6 +94,16 @@ l’entraînement v2. La version v1 reste conservée dans
 `MLmodels/final_geo_v1/` pour permettre un retour arrière.
 
 ### 3.4 Démarrer Streamlit
+
+Pour utiliser systématiquement le modèle v2 avec les températures, définir le
+modèle par défaut dans la session Windows (une seule fois) :
+
+```powershell
+[Environment]::SetEnvironmentVariable("ENEDIS_DEFAULT_MODEL", "final_geo_v2_temperature", "User")
+```
+
+Fermer puis rouvrir PowerShell avant le premier lancement suivant. Le réglage
+est conservé pour les prochains terminaux.
 
 ```powershell
 .\.venv-app\Scripts\python.exe -m streamlit run home.py `
@@ -138,11 +154,25 @@ La version v2 active utilise neuf variables, dont :
 
 ### Interprétation IA
 
-Cette page est facultative. Pour l’activer, créer une clé Gemini puis la
+Cette page est facultative. Pour l’activer, créer une clé Gemini et la
 définir dans la session PowerShell :
 
 ```powershell
 $env:GEMINI_API_KEY = "votre_cle_gemini"
+```
+
+Le modèle utilisé par défaut est `gemini-3.5-flash-lite`. Si Google AI Studio
+indique un autre modèle autorisé pour votre clé, vous pouvez le choisir ainsi :
+
+```powershell
+$env:GEMINI_MODEL = "gemini-3.5-flash-lite"
+```
+
+Avec Docker Compose, définir la variable avant le démarrage :
+
+```powershell
+$env:GEMINI_API_KEY = "votre_cle_gemini"
+docker compose up -d
 ```
 
 Ou créer le fichier local `.streamlit/secrets.toml` :
@@ -194,7 +224,17 @@ Il utilise les mêmes modèles et les mêmes règles de validation que Streamlit
 
 ### 6.1 Vérifier Docker et les fichiers locaux
 
-Démarrer Docker Desktop, puis exécuter :
+Démarrer Docker Desktop avec l’option de démarrage automatique activée. Créer
+le fichier `.env` à partir de `.env.example`, puis renseigner uniquement votre
+clé Gemini :
+
+```powershell
+Copy-Item .env.example .env
+notepad .env
+```
+
+Le fichier `.env` reste local et n’est jamais envoyé sur GitHub. Exécuter
+ensuite :
 
 ```powershell
 .\scripts\check_docker_inputs.ps1
@@ -204,6 +244,15 @@ Démarrer Docker Desktop, puis exécuter :
 
 ```powershell
 docker compose build
+docker compose up -d
+```
+
+Les services utilisent par défaut `final_geo_v2_temperature` et
+`gemini-3.5-flash-lite`. La politique `unless-stopped` relance les conteneurs
+automatiquement après un redémarrage de la machine, si Docker Desktop est
+lancé. Pour un démarrage manuel ultérieur, utiliser simplement :
+
+```powershell
 docker compose up -d
 ```
 

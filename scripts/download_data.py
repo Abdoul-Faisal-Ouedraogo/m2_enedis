@@ -6,6 +6,10 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from scripts.enrich_temperature import main as enrich_temperature
+
 BASE_URL = "https://github.com/Abdoul-Faisal-Ouedraogo/App_Enedis/releases/download/data-v1/"
 FILES = {
     "data/communes-france-2025.csv": (
@@ -52,6 +56,8 @@ def fetch(target, asset, expected):
 def main():
     for relative, (asset, expected) in FILES.items():
         fetch(ROOT / relative, asset, expected)
+    print("Préparation des températures v2…")
+    enrich_temperature([])
 
 
 if __name__ == "__main__":

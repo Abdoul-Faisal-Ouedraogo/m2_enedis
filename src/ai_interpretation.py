@@ -7,7 +7,7 @@ import streamlit as st
 
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
-GEMINI_MODEL = "gemini-3.8-flash"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 
 
 def api_key():
@@ -57,10 +57,11 @@ def get_interpretation(result):
         "generationConfig": {"temperature": 0.3},
     }
     response = None
+    model = os.getenv("GEMINI_MODEL", GEMINI_MODEL)
     for attempt in range(3):
         try:
             response = requests.post(
-                GEMINI_URL.format(model=GEMINI_MODEL),
+                GEMINI_URL.format(model=model),
                 headers={"Content-Type": "application/json", "x-goog-api-key": key},
                 json=payload,
                 timeout=120,
@@ -80,7 +81,8 @@ def get_interpretation(result):
     if response.status_code in (400, 401, 403):
         raise RuntimeError("La clé Gemini est invalide, désactivée ou sans autorisation API.")
     if response.status_code == 404:
-        raise RuntimeError(f"Le modèle Gemini demandé ({GEMINI_MODEL}) est indisponible pour cette clé.")
+        raise RuntimeError(f"Le modèle Gemini demandé ({model}) est indisponible pour cette clé. "
+                           "Définissez GEMINI_MODEL avec un modèle autorisé par votre projet.")
     if response.status_code == 429:
         raise RuntimeError("Limite temporaire de l'API Gemini atteinte. Réessayez plus tard.")
     if response.status_code in (500, 502, 503, 504):

@@ -2,6 +2,7 @@ name: habitat-energie-local
 x-runtime: &runtime
   image: habitat-energie:local
   build: .
+  restart: unless-stopped
   init: true
   read_only: true
   tmpfs:
@@ -13,6 +14,8 @@ x-runtime: &runtime
   environment:
     ENEDIS_RUNTIME: /app/runtime
     ENEDIS_DEFAULT_MODEL: final_geo_v2_temperature
+    GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
   volumes:
     - type: bind
       source: ./output/cleaned_data.csv
