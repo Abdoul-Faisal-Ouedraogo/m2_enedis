@@ -103,7 +103,6 @@ def test_commune_selection_applies_values_and_manual_override():
     assert len(ui.get("download_button")) == 0
     ui.selectbox(key="single_department").set_value("69").run()
     ui.selectbox(key="single_commune_69").set_value("69123").run()
-    ui.button(key="single_apply_geo").click().run()
     assert not ui.exception
     assert ui.number_input(key="single_altitude").value == 237
     assert ui.selectbox(key="single_zone").value == "H1"

@@ -53,7 +53,7 @@ def geographical_help(prefix):
     ] if proposal.get(key) is None]
     if missing:
         st.warning("Donnée(s) indisponible(s) pour cette commune : " + ", ".join(missing) +
-                   ". Aucune valeur n’est inventée ; gardez la saisie manuelle.")
+                   ". Les valeurs disponibles sont appliquées ; complétez le reste manuellement.")
     else:
         st.caption(
             f"Proposition : {number(proposal['altitude'], 1)} m · {proposal['zone']} · "
@@ -61,12 +61,22 @@ def geographical_help(prefix):
             f"{number(proposal['temperature_moyenne_hiver'], 1)} °C en hiver. "
             f"{proposal['source']} Températures : Open-Meteo 2015–2024."
         )
-        if st.button("Utiliser ces valeurs", key=prefix+"_apply_geo", width="stretch"):
-            st.session_state[prefix+"_altitude"] = proposal["altitude"]
-            st.session_state[prefix+"_zone"] = proposal["zone"]
-            st.session_state[prefix+"_temperature_annual"] = proposal["temperature_moyenne_annuelle"]
-            st.session_state[prefix+"_temperature_winter"] = proposal["temperature_moyenne_hiver"]
-            st.session_state[prefix+"_applied_geo"] = proposal
+    applied = st.session_state.get(prefix+"_applied_geo")
+    selected_context = (proposal["department"], proposal["original_code"])
+    applied_context = (
+        (applied.get("department"), applied.get("original_code"))
+        if applied else None
+    )
+    if applied_context != selected_context:
+        for key, value in {
+            prefix+"_altitude": proposal["altitude"],
+            prefix+"_zone": proposal["zone"],
+            prefix+"_temperature_annual": proposal["temperature_moyenne_annuelle"],
+            prefix+"_temperature_winter": proposal["temperature_moyenne_hiver"],
+        }.items():
+            if value is not None:
+                st.session_state[key] = value
+        st.session_state[prefix+"_applied_geo"] = proposal
     return f"{department}/{code}"
 
 

@@ -104,10 +104,10 @@ def representatives(communes):
     )
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--force", action="store_true", help="Recalculer les fichiers v2 existants")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     communes_path = ROOT / "data/communes-france-2025.csv"
     source_path = ROOT / "output/cleaned_data.csv"
     target = ROOT / "output/temperature_v2"
