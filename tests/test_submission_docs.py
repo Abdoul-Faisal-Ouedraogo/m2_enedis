@@ -8,7 +8,7 @@ from scripts.render_submission_docs import render
 from src.project_paths import ROOT
 
 
-@pytest.mark.parametrize("name,pages",[("guide_utilisateur",2),("documentation_technique",2),("rapport_ml_final",5)])
+@pytest.mark.parametrize("name,pages",[("guide_utilisateur",2),("documentation_a_voir",2),("rapport_ml_final",5)])
 def test_markdown_page_counts(name,pages,tmp_path):
     assert render(ROOT/"doc"/(name+".md"),tmp_path/(name+".pdf"))==pages
 
