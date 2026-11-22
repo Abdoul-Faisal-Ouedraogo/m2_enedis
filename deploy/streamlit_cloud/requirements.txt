@@ -1,0 +1,3 @@
+# Streamlit Community Cloud lit d'abord le dossier du fichier d'entrée : ce fichier
+# masque uv.lock et requirements.txt (environnement des notebooks) de la racine.
+-r ../../requirements-app.txt

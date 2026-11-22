@@ -431,6 +431,27 @@ service. Vérifier la clé, attendre quelques secondes et réessayer.
 - [Matrice des exigences](doc/exigences_rendu.md)
 - [Audit des rejets ADEME](doc/audit_rejets_rhone.md)
 
+## Déploiement sur Streamlit Community Cloud
+
+Dans le formulaire de déploiement de share.streamlit.io :
+
+- **Fichier d’entrée** : `deploy/streamlit_cloud/app.py`. Il exécute `home.py`.
+  Son dossier contient un `requirements.txt` qui installe exactement
+  `requirements-app.txt` ; `uv.lock` et `requirements.txt` à la racine restent
+  réservés aux notebooks.
+- **Version de Python** (Advanced settings) : `3.13`.
+- **Secrets** (Advanced settings) :
+
+```toml
+ENEDIS_DEFAULT_MODEL = "final_geo_v2_temperature"
+GEMINI_API_KEY = "votre_cle_gemini"
+```
+
+Au premier démarrage, l’application télécharge les données et calcule les
+températures : comptez plusieurs minutes avant l’affichage. La page Gestion
+n’a pas d’authentification ; sur une instance publique, tout visiteur peut y
+lancer une collecte ou un entraînement.
+
 ## Contribution
 
 Pour contribuer, créer une issue ou une branche dédiée, effectuer les tests,

@@ -1,6 +1,7 @@
 """Interface française des niveaux Standard et Intermédiaire."""
 import logging
 import json
+import threading
 import altair as alt
 
 import pandas as pd
@@ -17,6 +18,34 @@ from src.expert_ui import render_management
 from src.model_registry import load_model_version
 from src.app_services import (LABELS, read_data, filter_data, csv_bytes, chart_pngs,
                               map_points, build_map)
+
+
+REQUIRED_DATA = ("data/communes-france-2025.csv", "output/cleaned_data.csv",
+                 "output/cleaned_data_metadata.csv", "output/temperature_v2/temperatures_communes.csv")
+_download_lock = threading.Lock()
+
+
+def missing_data():
+    return [p for p in REQUIRED_DATA if not (project_paths.ROOT / p).is_file()]
+
+
+def ensure_data():
+    """Hébergement sans CSV (Streamlit Cloud) : un seul téléchargement, partagé par les sessions."""
+    if not missing_data():
+        return
+    with _download_lock:
+        if not missing_data():
+            return
+        with st.spinner("Premier démarrage : téléchargement des données et calcul des températures. "
+                        "Cette étape peut prendre plusieurs minutes…"):
+            try:
+                # Import tardif : l'image Docker ne contient pas ce script et ses données sont montées.
+                from scripts.download_data import main as download
+                download()
+            except Exception as exc:
+                logging.getLogger(__name__).exception("Téléchargement des données impossible")
+                st.error(f"Téléchargement des données impossible : {exc}. Rechargez la page pour réessayer.")
+                st.stop()
 
 
 def number(value, decimals=0):
