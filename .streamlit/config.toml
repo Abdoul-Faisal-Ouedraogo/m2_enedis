@@ -1,5 +1,6 @@
 [server]
-address = "127.0.0.1"
+# Pas d'adresse ici : Streamlit Cloud doit pouvoir écouter. En local, la commande
+# du README passe --server.address 127.0.0.1 ; Docker passe 0.0.0.0.
 port = 8501
 headless = true
 

@@ -445,12 +445,21 @@ Dans le formulaire de déploiement de share.streamlit.io :
 ```toml
 ENEDIS_DEFAULT_MODEL = "final_geo_v2_temperature"
 GEMINI_API_KEY = "votre_cle_gemini"
+ENEDIS_ADMIN_PASSWORD = "choisir_un_mot_de_passe_long"
 ```
 
 Au premier démarrage, l’application télécharge les données et calcule les
-températures : comptez plusieurs minutes avant l’affichage. La page Gestion
-n’a pas d’authentification ; sur une instance publique, tout visiteur peut y
-lancer une collecte ou un entraînement.
+températures : comptez plusieurs minutes avant l’affichage.
+
+`ENEDIS_ADMIN_PASSWORD` protège la page Gestion : sans ce mot de passe, un
+visiteur voit seulement l’état des versions de données et de modèles, sans
+pouvoir lancer de collecte, d’entraînement, d’activation ni de retour arrière.
+Si la variable n’est pas définie (usage local, Docker), la page reste
+accessible sans mot de passe.
+
+`.streamlit/config.toml` ne fixe pas d’adresse d’écoute, pour que Streamlit
+Cloud puisse servir l’application. En local, lancer Streamlit avec
+`--server.address 127.0.0.1`, comme dans la commande de la section 3.4.
 
 ## Contribution
 
