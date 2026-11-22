@@ -424,6 +424,7 @@ service. Vérifier la clé, attendre quelques secondes et réessayer.
 
 - [Guide utilisateur](doc/guide_utilisateur.md)
 - [Documentation technique](doc/documentation_technique.md)
+- [Rapport technique](doc/rapport_technique.md)
 - [Rapport ML final](doc/rapport_ml_final.md)
 - [Architecture](doc/architecture.drawio)
 - [Scénario de démonstration](doc/scenario_video.md)
