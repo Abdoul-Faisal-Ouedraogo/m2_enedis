@@ -4,7 +4,7 @@
 > Auteurs : [À compléter]. Date : [À compléter].
 >
 > Ce rapport présente l'architecture de l'application et renvoie, pour chaque partie,
-> vers la documentation détaillée du dossier `doc/`.
+> vers la documentation détaillée du dossier `doc/annexes/`.
 
 ---
 
@@ -25,8 +25,8 @@ L'application couvre trois niveaux d'usage :
 - **Expert** : collecte d'un lot ADEME, préparation et validation d'une version de données, réentraînement, activation et retour à une version antérieure ;
 - **API** : service FastAPI local exposant la même prédiction que l'interface.
 
-La couverture des exigences est détaillée dans la [matrice des exigences](exigences_rendu.md).
-Voir aussi le [README](../README.md) et le [guide utilisateur](guide_utilisateur.md).
+La couverture des exigences est détaillée dans la [matrice des exigences](annexes/exigences_rendu.md).
+Voir aussi le [README](../README.md) et le [guide utilisateur](annexes/guide_utilisateur.md).
 
 ---
 
@@ -52,8 +52,8 @@ Client HTTP ─▶ FastAPI   (src/prediction_api.py)             :8000 ─┘   
 - **Version active** : le pointeur `active.json` désigne les données et modèles actifs. Streamlit et l'API le relisent, ce qui invalide les résultats devenus obsolètes.
 - **Aucune action automatique** : ni collecte ni entraînement ne démarre au lancement.
 
-Schéma éditable : [architecture.drawio](architecture.drawio).
-Détails : [Architecture et exécution locale](documentation_technique.md).
+Schéma éditable : [architecture.drawio](annexes/architecture.drawio).
+Détails : [Architecture et exécution locale](annexes/documentation_technique.md).
 
 ### 2.1 Frontend (Streamlit)
 
@@ -65,8 +65,8 @@ Détails : [Architecture et exécution locale](documentation_technique.md).
 - **Interprétation IA** (`src/ai_interpretation.py`) : page facultative qui commente les résultats avec Google Gemini lorsque la clé `GEMINI_API_KEY` est configurée. Le modèle par défaut, `gemini-3.5-flash-lite`, peut être remplacé par la variable `GEMINI_MODEL`.
 - **Gestion** (`src/expert_ui.py`) : chaque action Expert exige un clic et une confirmation explicite.
 
-Détails : [Application Streamlit locale](application_streamlit_locale.md),
-[Refonte de l'interface](refonte_interface_locale.md).
+Détails : [Application Streamlit locale](annexes/application_streamlit_locale.md),
+[Refonte de l'interface](annexes/refonte_interface_locale.md).
 
 ### 2.2 Backend (FastAPI)
 
@@ -84,7 +84,7 @@ Uvicorn sur 127.0.0.1:8000.
 - **Périmètre** : aucune route d'entraînement ni d'activation, pas d'authentification ; l'API est prévue pour un usage local.
 - **Exemple de requête** : [`examples/prediction.json`](../examples/prediction.json).
 
-Détails : [Architecture et exécution locale](documentation_technique.md), section 5 du [README](../README.md).
+Détails : [Architecture et exécution locale](annexes/documentation_technique.md), section 5 du [README](../README.md).
 
 ### 2.3 Modèles de machine learning
 
@@ -110,9 +110,9 @@ la médiane donne une MAE de 3 505,67 kWh/an.
 - **Limites** : les performances sont faibles sur les classes F et G et sur les logements existants. Le lot réservé est interne, ce n'est pas une validation externe. Aucun intervalle de confiance individuel n'est fourni.
 - **Comparaison détaillée v1 / v2** (par classe et par population neuf/existant) : [À compléter].
 
-Détails : [Rapport ML final](rapport_ml_final.md),
-[Modèles finaux](modeles_finaux_2026-10-29.md),
-[Audit des modèles](audit_modeles_2026-10-29.md), section 8 du [README](../README.md).
+Détails : [Rapport ML final](annexes/rapport_ml_final.md),
+[Modèles finaux](annexes/modeles_finaux_2026-10-29.md),
+[Audit des modèles](annexes/audit_modeles_2026-10-29.md), section 8 du [README](../README.md).
 
 ### 2.4 Scripts
 
@@ -132,7 +132,7 @@ Les notebooks du dossier [`Notebooks_Api_Traitement/`](../Notebooks_Api_Traiteme
 la préparation (`1_data_preparation.ipynb`), l'enrichissement (`1a_enrichissement_donnees.ipynb`),
 la classification (`2_classification_dpe.ipynb`) et la régression (`3_regression_consommation.ipynb`).
 
-Détails : [Modèles finaux](modeles_finaux_2026-10-29.md), section « Reproduire ».
+Détails : [Modèles finaux](annexes/modeles_finaux_2026-10-29.md), section « Reproduire ».
 
 ### 2.5 Jeux de données
 
@@ -149,9 +149,9 @@ Détails : [Modèles finaux](modeles_finaux_2026-10-29.md), section « Reproduir
 - **Client Enedis** (`src/data_requesters/enedis.py`) : rôle dans la chaîne de traitement [À compléter].
 - **Représentativité** : l'échantillon n'est pas représentatif du parc de logements français.
 
-Détails : [Préparation et validation](preparation_validation_2026-10-29.md),
-[Audit des rejets Rhône](audit_rejets_rhone.md),
-[Zones climatiques par département](<La répartition des départements par zone climatique.pdf>).
+Détails : [Préparation et validation](annexes/preparation_validation_2026-10-29.md),
+[Audit des rejets Rhône](annexes/audit_rejets_rhone.md),
+[Zones climatiques par département](<annexes/La répartition des départements par zone climatique.pdf>).
 
 ### 2.6 Environnement (Docker)
 
@@ -169,7 +169,7 @@ Détails : [Préparation et validation](preparation_validation_2026-10-29.md),
 - **Ports alternatifs** : [`compose.test.yaml`](../compose.test.yaml) publie l'application sur 18501 et l'API sur 18000.
 - **Déploiement** : l'application est prévue pour un usage local ; les prérequis d'une mise en ligne sont décrits dans [deploy/README.md](../deploy/README.md).
 
-Détails : [Docker local](docker_local.md), section 6 du [README](../README.md).
+Détails : [Docker local](annexes/docker_local.md), section 6 du [README](../README.md).
 
 ---
 
@@ -228,26 +228,26 @@ Les tests automatisés couvrent :
 Ils se lancent avec `python -m pytest -q`, après `scripts/download_data.py`. Les 93 tests de la
 suite réussissent.
 
-Détails : [Guide utilisateur](guide_utilisateur.md), [Docker local](docker_local.md),
+Détails : [Guide utilisateur](annexes/guide_utilisateur.md), [Docker local](annexes/docker_local.md),
 [guide de contribution](../CONTRIBUTING.md).
 
 ---
 
-## 5. Annexes — documents de `doc/`
+## 5. Annexes — documents de `doc/annexes/`
 
 | Document | Description |
 |---|---|
-| [application_streamlit_locale.md](application_streamlit_locale.md) | Fonctionnement de l'application Streamlit : pages, filtres, carte, exports et vérifications. |
-| [architecture.drawio](architecture.drawio) | Schéma d'architecture éditable : Streamlit, API, registre de versions et chaînes Expert. |
-| [audit_modeles_2026-10-29.md](audit_modeles_2026-10-29.md) | Audit des notebooks et des modèles précédant les modèles finaux. |
-| [audit_rejets_rhone.md](audit_rejets_rhone.md) | Analyse des rejets d'un lot réel du Rhône et justification des bornes IQR figées. |
-| [docker_local.md](docker_local.md) | Commandes Docker, montages, ports et contrôle de fonctionnement dans l'image. |
-| [documentation_technique.md](documentation_technique.md) | Documentation technique : services, stockage, Docker, chaînes Expert et API. |
-| [exigences_rendu.md](exigences_rendu.md) | Matrice des exigences, de leur vérification et des limites connues. |
-| [guide_utilisateur.md](guide_utilisateur.md) | Mode d'emploi de l'application, de la gestion des versions et de Docker. |
-| [La répartition des départements par zone climatique.pdf](<La répartition des départements par zone climatique.pdf>) | Référentiel des zones climatiques H1, H2 et H3 par département. |
-| [modeles_finaux_2026-10-29.md](modeles_finaux_2026-10-29.md) | Protocole, comparaison des variantes et résultats détaillés des modèles `final_geo_v1`. |
-| [preparation_validation_2026-10-29.md](preparation_validation_2026-10-29.md) | Corrections géographiques et préparation du découpage de validation. |
-| [rapport_ml_final.md](rapport_ml_final.md) | Synthèse de la modélisation : données, protocole, résultats et limites. |
-| [refonte_interface_locale.md](refonte_interface_locale.md) | Conception de l'interface : présentation, carte, comparaison de deux logements. |
-| [scenario_video.md](scenario_video.md) | Scénario chronométré de la vidéo de démonstration. |
+| [application_streamlit_locale.md](annexes/application_streamlit_locale.md) | Fonctionnement de l'application Streamlit : pages, filtres, carte, exports et vérifications. |
+| [architecture.drawio](annexes/architecture.drawio) | Schéma d'architecture éditable : Streamlit, API, registre de versions et chaînes Expert. |
+| [audit_modeles_2026-10-29.md](annexes/audit_modeles_2026-10-29.md) | Audit des notebooks et des modèles précédant les modèles finaux. |
+| [audit_rejets_rhone.md](annexes/audit_rejets_rhone.md) | Analyse des rejets d'un lot réel du Rhône et justification des bornes IQR figées. |
+| [docker_local.md](annexes/docker_local.md) | Commandes Docker, montages, ports et contrôle de fonctionnement dans l'image. |
+| [documentation_technique.md](annexes/documentation_technique.md) | Documentation technique : services, stockage, Docker, chaînes Expert et API. |
+| [exigences_rendu.md](annexes/exigences_rendu.md) | Matrice des exigences, de leur vérification et des limites connues. |
+| [guide_utilisateur.md](annexes/guide_utilisateur.md) | Mode d'emploi de l'application, de la gestion des versions et de Docker. |
+| [La répartition des départements par zone climatique.pdf](<annexes/La répartition des départements par zone climatique.pdf>) | Référentiel des zones climatiques H1, H2 et H3 par département. |
+| [modeles_finaux_2026-10-29.md](annexes/modeles_finaux_2026-10-29.md) | Protocole, comparaison des variantes et résultats détaillés des modèles `final_geo_v1`. |
+| [preparation_validation_2026-10-29.md](annexes/preparation_validation_2026-10-29.md) | Corrections géographiques et préparation du découpage de validation. |
+| [rapport_ml_final.md](annexes/rapport_ml_final.md) | Synthèse de la modélisation : données, protocole, résultats et limites. |
+| [refonte_interface_locale.md](annexes/refonte_interface_locale.md) | Conception de l'interface : présentation, carte, comparaison de deux logements. |
+| [scenario_video.md](annexes/scenario_video.md) | Scénario chronométré de la vidéo de démonstration. |
