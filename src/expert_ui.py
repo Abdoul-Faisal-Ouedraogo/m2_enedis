@@ -1,4 +1,6 @@
 """Actions Expert uniquement sur clic et confirmation explicites."""
+import hmac
+import os
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
 import pandas as pd
@@ -45,6 +47,33 @@ def data_summary(info):
         st.json(info)
 
 
+def admin_unlocked():
+    """Instance publique : ENEDIS_ADMIN_PASSWORD (secret) protège les actions ; absent, rien ne change."""
+    expected = os.environ.get("ENEDIS_ADMIN_PASSWORD", "")
+    if not expected or st.session_state.get("admin_unlocked"):
+        return True
+    entered = st.text_input("Mot de passe administrateur", type="password", key="admin_password")
+    if entered and hmac.compare_digest(entered.encode(), expected.encode()):
+        st.session_state.admin_unlocked = True
+        return True
+    if entered:
+        st.error("Mot de passe incorrect.")
+    st.info("Les actions de gestion (collecte, validation, entraînement, activation, retour arrière) "
+            "sont réservées à l’administrateur. État actuel en lecture seule.")
+    return False
+
+
+def read_only_status(store):
+    for kind, label in [("datasets", "Versions de données"), ("models", "Versions de modèles")]:
+        entries = store.list_versions(kind)
+        st.markdown(f"**{label}**")
+        if entries:
+            st.dataframe(pd.DataFrame([{"Version": x["id"], "Statut": x["status"]} for x in entries]),
+                         hide_index=True, width="stretch")
+        else:
+            st.caption("Aucune nouvelle version : seules les versions de référence sont disponibles.")
+
+
 def render_management():
     st.title("⚙️ Gestion des données et modèles")
     st.write("Préparer une version ne l’active pas. Les fichiers d’origine et les modèles de référence sont conservés.")
@@ -52,6 +81,9 @@ def render_management():
     store = VersionStore()
     active = store.active()
     st.caption(f"Données actives : {active['data']} · Modèles actifs : {active['model']}")
+    if not admin_unlocked():
+        read_only_status(store)
+        return
     with st.expander("Recevoir de nouveaux diagnostics", expanded=True):
         a, b = st.columns(2)
         dep = a.text_input("Département à actualiser", value="69", key="collect_department")

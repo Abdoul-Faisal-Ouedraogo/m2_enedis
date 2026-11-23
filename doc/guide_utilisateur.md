@@ -10,7 +10,7 @@ Depuis la racine du dépôt, avec Python 3.13 et l'environnement application :
 
 ```powershell
 uv pip install --python .venv-app/Scripts/python.exe -r requirements-app.txt
-.\.venv-app\Scripts\python.exe -m streamlit run home.py
+.\.venv-app\Scripts\python.exe -m streamlit run home.py --server.address 127.0.0.1
 ```
 
 Ouvrir http://127.0.0.1:8501. Pour créer l'environnement s'il est absent :

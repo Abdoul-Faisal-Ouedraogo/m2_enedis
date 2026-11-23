@@ -208,7 +208,7 @@ l'ensemble des étapes et le dépannage.
 
 1. **Environnement** : après avoir cloné le dépôt, créer l'environnement avec `py -3.13 -m venv .venv-app`, puis installer `requirements-app.txt`.
 2. **Données** : `python scripts/download_data.py`. La première exécution génère aussi les températures du modèle v2 ; elle nécessite Internet et peut prendre quelques minutes.
-3. **Interface** : `python -m streamlit run home.py`, puis ouvrir http://127.0.0.1:8501.
+3. **Interface** : `python -m streamlit run home.py --server.address 127.0.0.1`, puis ouvrir http://127.0.0.1:8501.
 4. **API** : dans un second terminal, `python -m uvicorn src.prediction_api:app --host 127.0.0.1 --port 8000`, puis ouvrir http://127.0.0.1:8000/docs.
 5. **Docker** (alternative) : créer `.env` à partir de `.env.example`, puis lancer `.\scripts\check_docker_inputs.ps1`, `docker compose build` et `docker compose up -d`. Arrêter avec `docker compose down`, sans l'option `-v`, pour conserver les versions Expert.
 

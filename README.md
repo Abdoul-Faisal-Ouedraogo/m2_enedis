@@ -431,6 +431,36 @@ service. Vérifier la clé, attendre quelques secondes et réessayer.
 - [Matrice des exigences](doc/exigences_rendu.md)
 - [Audit des rejets ADEME](doc/audit_rejets_rhone.md)
 
+## Déploiement sur Streamlit Community Cloud
+
+Dans le formulaire de déploiement de share.streamlit.io :
+
+- **Fichier d’entrée** : `deploy/streamlit_cloud/app.py`. Il exécute `home.py`.
+  Son dossier contient un `requirements.txt` qui installe exactement
+  `requirements-app.txt` ; `uv.lock` et `requirements.txt` à la racine restent
+  réservés aux notebooks.
+- **Version de Python** (Advanced settings) : `3.13`.
+- **Secrets** (Advanced settings) :
+
+```toml
+ENEDIS_DEFAULT_MODEL = "final_geo_v2_temperature"
+GEMINI_API_KEY = "votre_cle_gemini"
+ENEDIS_ADMIN_PASSWORD = "choisir_un_mot_de_passe_long"
+```
+
+Au premier démarrage, l’application télécharge les données et calcule les
+températures : comptez plusieurs minutes avant l’affichage.
+
+`ENEDIS_ADMIN_PASSWORD` protège la page Gestion : sans ce mot de passe, un
+visiteur voit seulement l’état des versions de données et de modèles, sans
+pouvoir lancer de collecte, d’entraînement, d’activation ni de retour arrière.
+Si la variable n’est pas définie (usage local, Docker), la page reste
+accessible sans mot de passe.
+
+`.streamlit/config.toml` ne fixe pas d’adresse d’écoute, pour que Streamlit
+Cloud puisse servir l’application. En local, lancer Streamlit avec
+`--server.address 127.0.0.1`, comme dans la commande de la section 3.4.
+
 ## Contribution
 
 Pour contribuer, créer une issue ou une branche dédiée, effectuer les tests,
