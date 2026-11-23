@@ -422,14 +422,14 @@ service. Vérifier la clé, attendre quelques secondes et réessayer.
 
 ## 12. Documentation complémentaire
 
-- [Guide utilisateur](doc/guide_utilisateur.md)
-- [Documentation technique](doc/documentation_technique.md)
+- [Guide utilisateur](doc/annexes/guide_utilisateur.md)
+- [Documentation technique](doc/annexes/documentation_technique.md)
 - [Rapport technique](doc/rapport_technique.md)
-- [Rapport ML final](doc/rapport_ml_final.md)
-- [Architecture](doc/architecture.drawio)
-- [Scénario de démonstration](doc/scenario_video.md)
-- [Matrice des exigences](doc/exigences_rendu.md)
-- [Audit des rejets ADEME](doc/audit_rejets_rhone.md)
+- [Rapport ML final](doc/annexes/rapport_ml_final.md)
+- [Architecture](doc/annexes/architecture.drawio)
+- [Scénario de démonstration](doc/annexes/scenario_video.md)
+- [Matrice des exigences](doc/annexes/exigences_rendu.md)
+- [Audit des rejets ADEME](doc/annexes/audit_rejets_rhone.md)
 
 ## Déploiement sur Streamlit Community Cloud
 

@@ -91,6 +91,6 @@ lines += ["", "## Artefacts et contrôles", "",
     "- L'échantillon ADEME local n'est pas représentatif du parc français. Les sous-zones climatiques n'ont pas été inventées et l'enrichissement Rhône complet reste non rejoué sans ses fichiers.",
     "- Les anciens scores aléatoires ne se comparent pas directement aux scores présents : données, populations et découpage diffèrent.",
     "- Aucun réglage supplémentaire n'est recherché après cette évaluation. Aucun développement de l'application n'a été effectué.", ""]
-target = ROOT / "doc/modeles_finaux_2026-10-29.md"
+target = ROOT / "doc/annexes/modeles_finaux_2026-10-29.md"
 target.write_text("\n".join(lines), encoding="utf-8")
 print("Rapport écrit :", target)
